@@ -6,15 +6,17 @@ import Play from "./pages/play";
 import Nav from "./components/nav/Nav";
 export default function App() {
   return (
-    <Router>
-      <Nav />
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/play/:id" element={<Play />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="bg-black h-screen w-screen">
+      <Router>
+        <Nav />
+        <div className="p-6">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/play/:id" element={<Play />} />
+          </Routes>
+        </div>
+      </Router>
+    </div>
   );
 }
