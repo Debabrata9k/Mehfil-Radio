@@ -11,7 +11,11 @@ function Home() {
       </div>
       <div className="shadow-lg rounded-sm border border-grey-600">
         <div className="h-40 w-50 rounded-2xl p-5 overflow-hidden">
-          <img src="https://picsum.photos/id/237/200/300" className="rounded-xl" alt="Picture"></img>
+          <img
+            src="https://picsum.photos/id/237/200/300"
+            className="rounded-xl"
+            alt="Picture"
+          ></img>
         </div>
         <h2 className="text-center">Title</h2>
         <div className="w-full flex justify-center items-center flex-col">
