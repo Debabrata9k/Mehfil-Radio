@@ -1,16 +1,46 @@
-# React + Vite
+# 🎵 MEHFIL RADIO  
+*A Modern Music Player Web App — Built with React, TailwindCSS & GSAP*
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A beautiful and interactive web-based music player created by **EIEM Summer Internship Team-B**.  
+> Designed to showcase animation, interactivity, and responsive web design — perfect for modern portfolios and demo projects.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 Features
 
-## React Compiler
+- 🎧 **Smooth Audio Player** – Play, pause, seek, next/previous with full progress tracking  
+- 🎚️ **Animated UI** – GSAP-powered transitions, soft parallax, and glowing effects  
+- 🌈 **Modern Glassmorphic Design** – Soft transparency with TailwindCSS utilities  
+- 📱 **Fully Responsive** – Works on mobile, tablet, and desktop  
+- 🔁 **Repeat / Shuffle Modes** – Enhanced player experience  
+- 🎨 **Dynamic Theme** – Gradient background and interactive glow effects  
+- 🪩 **Live Feel** – Elastic and magnetic animations that make the interface feel alive  
+- 🚀 **Fast and Lightweight** – No heavy dependencies or external libraries  
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧠 Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Technology | Description |
+|-------------|-------------|
+| **React.js** | Component-based UI |
+| **Tailwind CSS** | Modern utility-first styling |
+| **GSAP** | Advanced animations & effects |
+| **Lucide React** | Clean vector icons |
+| **HTML5 Audio API** | Handles playback & metadata |
+
+---
+
+## 🖼️ Screenshots
+
+> _(Add screenshots or short demo GIFs here)_  
+You can capture them using `Ctrl + Shift + S` or any screen recorder.
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/MEHFIL-RADIO.git
+cd MEHFIL-RADIO

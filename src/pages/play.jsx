@@ -1,31 +1,242 @@
-import React from "react";
-import { useParams } from "react-router";
-import gsap from "gsap";
-function play() {
-  const { id } = useParams();
-  gsap.to("title",{
-    translateX:200,
+import { useRef, useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import musicData from '../musicData';
+import MarqueeTitle from '../components/MarqueeTitle';
+import {
+    Play as PlayIcon,
+    Pause,
+    SkipBack,
+    SkipForward,
+    Repeat,
+    Shuffle,
+} from 'lucide-react';
 
-  })
-  return (
-    <div className="w-full h-full flex justify-center items-center">
-      <div className="bg-zinc-800 w-72  rounded-2xl flex flex-col p-7 overflow-hidden">
-        <div className="h-40 w-auto bg-zinc-400 rounded-2xl mb-7 overflow-hidden">
-          <img
-            src="https://picsum.photos/seed/picsum/200/300"
-            alt=""
-            className="w-full h-full"
-          />
+function Play() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const currentIndex = Number(id);
+
+    const [musicIndex, setMusicIndex] = useState(currentIndex);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [audioProgress, setAudioProgress] = useState(0);
+    const [musicTotalLength, setMusicTotalLength] = useState('00:00');
+    const [musicCurrentTime, setMusicCurrentTime] = useState('00:00');
+    const [isRepeat, setIsRepeat] = useState(false);
+    const [isShuffle, setIsShuffle] = useState(false);
+    const currentAudio = useRef(null);
+
+    const [currentMusicDetails, setCurrentMusicDetails] = useState({
+        title: musicData[musicIndex].title,
+        artist: musicData[musicIndex].artist,
+        src: musicData[musicIndex].src,
+        cover: musicData[musicIndex].cover,
+    });
+
+    useEffect(() => {
+        const audio = currentAudio.current;
+        if (!audio) return;
+        audio.pause();
+        audio.src = currentMusicDetails.src;
+        audio.load();
+
+        const onReady = () => {
+            if (isPlaying) audio.play();
+        };
+        audio.addEventListener('loadedmetadata', onReady);
+        return () => audio.removeEventListener('loadedmetadata', onReady);
+    }, [currentMusicDetails.src]);
+
+    const handleAudioUpdate = () => {
+        const audio = currentAudio.current;
+        if (!audio || !audio.duration) return;
+        const format = (n) => (n < 10 ? `0${n}` : n);
+        const duration = audio.duration;
+        const current = audio.currentTime;
+        setMusicTotalLength(
+            `${format(Math.floor(duration / 60))} : ${format(
+                Math.floor(duration % 60)
+            )}`
+        );
+        setMusicCurrentTime(
+            `${format(Math.floor(current / 60))} : ${format(
+                Math.floor(current % 60)
+            )}`
+        );
+        const progress = (current / duration) * 100;
+        setAudioProgress(isNaN(progress) ? 0 : progress);
+    };
+
+    const handleAudioPlay = () => {
+        const audio = currentAudio.current;
+        if (!audio) return;
+        if (audio.paused) {
+            audio.play();
+            setIsPlaying(true);
+        } else {
+            audio.pause();
+            setIsPlaying(false);
+        }
+    };
+
+    const handleMusicProgressBar = (e) => {
+        const value = Number(e.target.value);
+        const audio = currentAudio.current;
+        if (!audio) return;
+        setAudioProgress(value);
+        const seekTime = (value / 100) * audio.duration;
+        const trySeek = () => {
+            if (!isNaN(seekTime) && seekTime >= 0 && audio.duration > 0) {
+                audio.currentTime = seekTime;
+                if (isPlaying) audio.play();
+            }
+        };
+        if (audio.readyState >= 2) trySeek();
+        else audio.addEventListener('canplay', trySeek, { once: true });
+    };
+
+    const getRandomIndex = () => {
+        let randomIndex = Math.floor(Math.random() * musicData.length);
+        while (randomIndex === musicIndex && musicData.length > 1) {
+            randomIndex = Math.floor(Math.random() * musicData.length);
+        }
+        return randomIndex;
+    };
+
+    const handleNextSong = () => {
+        let nextIndex;
+        if (isShuffle) {
+            nextIndex = getRandomIndex();
+        } else {
+            nextIndex = musicIndex >= musicData.length - 1 ? 0 : musicIndex + 1;
+        }
+        updateCurrentMusicDetails(nextIndex);
+    };
+
+    const handlePrevSong = () => {
+        let prevIndex;
+        if (isShuffle) {
+            prevIndex = getRandomIndex();
+        } else {
+            prevIndex =
+                musicIndex === 0 ? musicData.length - 1 : musicIndex - 1;
+        }
+        updateCurrentMusicDetails(prevIndex);
+    };
+
+    const updateCurrentMusicDetails = (index) => {
+        const song = musicData[index];
+        setMusicIndex(index);
+        navigate(`/play/${index}`);
+        setCurrentMusicDetails({
+            title: song.title,
+            artist: song.artist,
+            src: song.src,
+            cover: song.cover,
+        });
+        setIsPlaying(true);
+    };
+
+    const handleEnd = () => {
+        if (isRepeat) {
+            const audio = currentAudio.current;
+            audio.currentTime = 0;
+            audio.play();
+        } else {
+            handleNextSong();
+        }
+    };
+
+    return (
+        <div className='w-full h-full flex justify-center items-center text-white'>
+            <audio
+                ref={currentAudio}
+                preload='metadata'
+                src={currentMusicDetails.src}
+                onTimeUpdate={handleAudioUpdate}
+                onEnded={handleEnd}
+                crossOrigin='anonymous'
+                autoPlay
+            ></audio>
+
+            <div className='bg-zinc-900/70 backdrop-blur-lg w-80 rounded-3xl p-6  flex flex-col items-center'>
+                <div className='h-44 w-full rounded-2xl overflow-hidden mb-6'>
+                    <img
+                        src={currentMusicDetails.cover}
+                        alt={currentMusicDetails.title}
+                        className='w-full h-full object-cover hover:scale-105 transition-transform duration-500'
+                    />
+                </div>
+
+                <MarqueeTitle title={currentMusicDetails.title} />
+                <p className='text-zinc-400 text-sm mb-5'>
+                    {currentMusicDetails.artist}
+                </p>
+
+                <div className='flex items-center justify-between text-xs w-full mb-2 text-zinc-400'>
+                    <span>{musicCurrentTime}</span>
+                    <span>{musicTotalLength}</span>
+                </div>
+
+                <input
+                    type='range'
+                    name='musicProgressBar'
+                    value={audioProgress}
+                    onChange={handleMusicProgressBar}
+                    className='w-full h-2 accent-purple-600 rounded-lg appearance-auto cursor-pointer'
+                />
+
+                <div className='flex justify-center items-center gap-6 mt-6'>
+                    <button
+                        onClick={handlePrevSong}
+                        className='p-3 rounded-full bg-zinc-800 hover:bg-zinc-700 hover:text-purple-400 transition-all'
+                    >
+                        <SkipBack size={22} />
+                    </button>
+
+                    <button
+                        onClick={handleAudioPlay}
+                        className='p-4 rounded-full bg-purple-500 hover:bg-purple-400 text-white shadow-lg transition-all'
+                    >
+                        {!isPlaying ? (
+                            <PlayIcon size={26} />
+                        ) : (
+                            <Pause size={26} />
+                        )}
+                    </button>
+
+                    <button
+                        onClick={handleNextSong}
+                        className='p-3 rounded-full bg-zinc-800 hover:bg-zinc-700 hover:text-purple-400 transition-all'
+                    >
+                        <SkipForward size={22} />
+                    </button>
+                </div>
+
+                <div className='flex justify-center gap-10 mt-6'>
+                    <button
+                        onClick={() => setIsShuffle(!isShuffle)}
+                        className={`p-2 rounded-full transition-all ${
+                            isShuffle
+                                ? 'text-purple-400 bg-zinc-800 shadow-[0_0_10px_rgba(0,255,120,0.3)]'
+                                : 'text-zinc-400 hover:text-white'
+                        }`}
+                    >
+                        <Shuffle size={20} />
+                    </button>
+                    <button
+                        onClick={() => setIsRepeat(!isRepeat)}
+                        className={`p-2 rounded-full transition-all ${
+                            isRepeat
+                                ? 'text-purple-400 bg-zinc-800 shadow-[0_0_10px_rgba(0,255,120,0.3)]'
+                                : 'text-zinc-400 hover:text-white'
+                        }`}
+                    >
+                        <Repeat size={20} />
+                    </button>
+                </div>
+            </div>
         </div>
-        <p className="text-white font-bold text-[20px] w-full h-40 text-nowrap  title">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi veniam
-          eligendi voluptatibus minima sequi? Cupiditate nemo laborum eum
-          placeat aspernatur?
-        </p>
-        <div className=" h-2 w-full bg-zinc-500 rounded-2xl"></div>
-      </div>
-    </div>
-  );
+    );
 }
 
-export default play;
+export default Play;
