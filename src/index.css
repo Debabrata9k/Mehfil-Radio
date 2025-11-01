@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-
 @keyframes marquee {
     0% {
         transform: translateX(340px);
@@ -8,10 +7,22 @@
         transform: translateX(-100%);
     }
 }
-
 .animate-marquee {
     animation-name: marquee;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+/* Scrollbar Track */
+::-webkit-scrollbar-track {
+    background: #0a0515; /* Dark background to blend with your theme */
+}
+/* Optional: for Firefox support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #a855f7 #0a0515;
+}
