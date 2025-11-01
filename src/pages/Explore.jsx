@@ -25,7 +25,6 @@ function Explore() {
     }, []);
 
     const handelClick = (d) => {
-        console.log(d);
         Navigate(`../play/${d}`);
     };
     return (

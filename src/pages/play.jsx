@@ -40,7 +40,10 @@ function Play() {
         audio.load();
 
         const onReady = () => {
-            if (isPlaying) audio.play();
+            if (!isPlaying) {
+                audio.play();
+                setIsPlaying(true);
+            }
         };
         audio.addEventListener('loadedmetadata', onReady);
         return () => audio.removeEventListener('loadedmetadata', onReady);
@@ -197,10 +200,10 @@ function Play() {
                         onClick={handleAudioPlay}
                         className='p-4 rounded-full bg-purple-500 hover:bg-purple-400 text-white shadow-lg transition-all'
                     >
-                        {!isPlaying ? (
-                            <PlayIcon size={26} />
-                        ) : (
+                        {isPlaying ? (
                             <Pause size={26} />
+                        ) : (
+                            <PlayIcon size={26} />
                         )}
                     </button>
 
@@ -215,23 +218,58 @@ function Play() {
                 <div className='flex justify-center gap-10 mt-6'>
                     <button
                         onClick={() => setIsShuffle(!isShuffle)}
-                        className={`p-2 rounded-full transition-all ${
+                        className={`relative p-2 rounded-full transition-all duration-300 ${
                             isShuffle
-                                ? 'text-purple-400 bg-zinc-800 shadow-[0_0_10px_rgba(0,255,120,0.3)]'
-                                : 'text-zinc-400 hover:text-white'
+                                ? 'bg-zinc-900 text-purple-300 shadow-[0_0_12px_3px_rgba(168,85,247,0.6)]'
+                                : 'text-zinc-400 hover:text-purple-300 hover:shadow-[0_0_8px_2px_rgba(168,85,247,0.4)]'
                         }`}
                     >
-                        <Shuffle size={20} />
+                        <span
+                            className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-500 ${
+                                isShuffle
+                                    ? 'bg-purple-500 opacity-40 animate-pulse'
+                                    : 'opacity-0'
+                            }`}
+                        ></span>
+
+                        <span className='relative z-10'>
+                            <Shuffle
+                                size={20}
+                                className={`transition-all duration-300 ${
+                                    isShuffle
+                                        ? 'drop-shadow-[0_0_6px_rgba(168,85,247,0.9)] text-purple-300'
+                                        : ''
+                                }`}
+                            />
+                        </span>
                     </button>
+
                     <button
                         onClick={() => setIsRepeat(!isRepeat)}
-                        className={`p-2 rounded-full transition-all ${
+                        className={`relative p-2 rounded-full transition-all duration-300 ${
                             isRepeat
-                                ? 'text-purple-400 bg-zinc-800 shadow-[0_0_10px_rgba(0,255,120,0.3)]'
-                                : 'text-zinc-400 hover:text-white'
+                                ? 'bg-zinc-900 text-purple-300 shadow-[0_0_12px_3px_rgba(168,85,247,0.6)]'
+                                : 'text-zinc-400 hover:text-purple-300 hover:shadow-[0_0_8px_2px_rgba(168,85,247,0.4)]'
                         }`}
                     >
-                        <Repeat size={20} />
+                        <span
+                            className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-500 ${
+                                isRepeat
+                                    ? 'bg-purple-500 opacity-40 animate-pulse'
+                                    : 'opacity-0'
+                            }`}
+                        ></span>
+
+                        <span className='relative z-10'>
+                            <Repeat
+                                size={20}
+                                className={`transition-all duration-300 ${
+                                    isRepeat
+                                        ? 'drop-shadow-[0_0_6px_rgba(168,85,247,0.9)] text-purple-300'
+                                        : ''
+                                }`}
+                            />
+                        </span>
                     </button>
                 </div>
             </div>
