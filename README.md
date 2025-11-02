@@ -15,7 +15,8 @@
 - 🔁 **Repeat / Shuffle Modes** – Enhanced player experience  
 - 🎨 **Dynamic Theme** – Gradient background and interactive glow effects  
 - 🪩 **Live Feel** – Elastic and magnetic animations that make the interface feel alive  
-- 🚀 **Fast and Lightweight** – No heavy dependencies or external libraries  
+- 🚀 **Fast and Lightweight** – No heavy dependencies or external libraries
+- **Favorites Section** -
 
 ---
 
