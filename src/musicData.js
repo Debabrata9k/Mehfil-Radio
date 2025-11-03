@@ -8,13 +8,6 @@ const musicData = [
         src: '/music/Aaro-Ekbar-(PenduJatt).mp3',
     },
     {
-        id: 1,
-        title: 'Beete Lamhein The Train',
-        artist: 'Mithoon',
-        cover: '/img/Beete-Lamhein-The-Train.jpg',
-        src: '/music/Beete-Lamhein-The-Train.mp3',
-    },
-    {
         id: 2,
         title: 'Chahun Main Ya Naa Aashiqui 2',
         artist: 'Arijit Singh',
@@ -41,6 +34,13 @@ const musicData = [
         artist: 'Shreya Ghoshal',
         cover: '/img/O-Rangrez-Bhaag-Milkha-Bhaag.jpg',
         src: '/music/O-Rangrez-Bhaag-Milkha-Bhaag.mp3',
+    },
+    {
+        id: 1,
+        title: 'Beete Lamhein The Train',
+        artist: 'Mithoon',
+        cover: '/img/Beete-Lamhein-The-Train.jpg',
+        src: '/music/Beete-Lamhein-The-Train.mp3',
     },
     {
         id: 6,

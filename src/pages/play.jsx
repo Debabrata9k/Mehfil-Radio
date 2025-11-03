@@ -150,7 +150,7 @@ function Play() {
     };
 
     return (
-        <div className='w-full h-full flex justify-center items-center text-white'>
+        <div className='w-full h-full flex justify-center items-center text-white bg-linear-to-b from-[#170935] via-[#13052b] to-[#1a0c38]'>
             <audio
                 ref={currentAudio}
                 preload='metadata'
@@ -161,7 +161,7 @@ function Play() {
                 autoPlay
             ></audio>
 
-            <div className='bg-zinc-900/70 backdrop-blur-lg w-80 rounded-3xl p-6  flex flex-col items-center'>
+            <div className='bg-zinc-300/5 backdrop-blur-lg w-80 rounded-3xl p-6  flex flex-col items-center'>
                 <div className='h-44 w-full rounded-2xl overflow-hidden mb-6'>
                     <img
                         src={currentMusicDetails.cover}

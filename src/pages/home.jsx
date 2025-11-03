@@ -1,121 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MusicData from '../musicData';
-import { Play, Heart } from 'lucide-react';
-import { useNavigate } from 'react-router';
-
-function formatDuration(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s < 10 ? '0' + s : s}`;
-}
+import MusicCard from '../components/Music-Card';
 
 function Home() {
-  const [durations, setDurations] = useState({});
-  const [favorites, setFavorites] = useState([]);
-  const Navigate = useNavigate();
+    const [favorites, setFavorites] = useState([]);
 
-  // ⏳ Load duration for each music file automatically
-  useEffect(() => {
-    MusicData.forEach((track) => {
-      const audio = new Audio(track.src);
-      audio.addEventListener('loadedmetadata', () => {
-        setDurations((prev) => ({
-          ...prev,
-          [track.id]: audio.duration,
-        }));
-      });
-    });
-  }, []);
+    useEffect(() => {
+        const saved = localStorage.getItem('favorites');
+        if (saved) setFavorites(JSON.parse(saved));
+    }, []);
 
-  // ❤️ Load favorites from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('favorites');
-    if (saved) setFavorites(JSON.parse(saved));
-  }, []);
+    const defaultSongs = MusicData.slice(0, 4);
 
-  const handelClick = (d) => {
-    Navigate(`../play/${d}`);
-  };
+    const favoriteSongs = MusicData.filter((song) =>
+        favorites.includes(song.id)
+    ).slice(0, 4);
 
-  const defaultSongs = MusicData.slice(0, 4);
+    const topSongs = favoriteSongs.length > 0 ? favoriteSongs : defaultSongs;
 
-  const favoriteSongs = MusicData.filter((song) =>
-    favorites.includes(song.id)
-  ).slice(0, 4);
+    return (
+        <div className='relative w-full h-screen text-white overflow-hidden bg-linear-to-b from-[#0a0515] via-[#13052b] to-[#0a0515]'>
+            {/* Scrollable Container */}
+            <div className='relative w-full h-full overflow-y-auto scroll-smooth px-4 sm:px-6 md:px-10 py-10'>
+                <h1 className='text-9xl sm:text-3xl md:text-4xl font-bold mb-8 text-center text-purple-400 tracking-wide'>
+                    MEHFIL-RADIO
+                </h1>
 
-  const topSongs = favoriteSongs.length > 0 ? favoriteSongs : defaultSongs;
-
-  return (
-    <div className='relative w-full h-screen text-white overflow-hidden bg-linear-to-b from-[#0a0515] via-[#13052b] to-[#0a0515]'>
-      {/* Scrollable Container */}
-      <div className='relative w-full h-full overflow-y-auto scroll-smooth px-4 sm:px-6 md:px-10 py-10'>
-        <h1 className='text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-center text-purple-400 tracking-wide'>
-          MEHFIL-RADIO
-        </h1>
-
-        <h2 className='text-lg sm:text-xl md:text-2xl font-semibold mb-6 text-pink-400 text-center'>
-          ❤️ Top Songs {favoriteSongs.length > 0 ? 'You Love' : 'For You'}
-        </h2>
-
-        {/* Grid of Top Music Cards */}
-        <div className='pb-20 grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'>
-          {topSongs.map((item, index) => (
-            <div
-              key={index}
-              onClick={() => handelClick(item.id)}
-              className='group cursor-pointer relative w-full bg-[#1a0b2f]/60 backdrop-blur-md rounded-2xl overflow-hidden shadow-lg border border-white/10 hover:border-purple-400/40 hover:shadow-[0_0_25px_rgba(168,85,247,0.3)] hover:scale-[1.03] transition-all duration-500'
-            >
-              <div className='relative w-full aspect-square overflow-hidden'>
-                <img
-                  src={item.cover}
-                  alt={item.title}
-                  className='w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500'
-                />
-
-                <button className='absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500'>
-                  <div className='w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-linear-to-tr from-[#a855f7] to-[#c084fc] hover:scale-110 transition-transform duration-300'>
-                    <Play size={22} className='text-black' />
-                  </div>
-                </button>
-
-                {/* ❤️ Heart icon (filled if favorite) */}
-                <div className='absolute top-2 right-2 z-10 p-2 rounded-full bg-black/40'>
-                  <Heart
-                    size={18}
-                    className={`${
-                      favorites.includes(item.id)
-                        ? 'text-pink-500 fill-pink-500'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              <div className='p-3 sm:p-4 space-y-1'>
-                <h2 className='text-sm sm:text-base font-medium truncate capitalize'>
-                  {item.title.replace(/-/g, ' ')}
+                <h2 className='text-lg sm:text-xl md:text-2xl font-semibold mb-6 text-pink-400 text-center'>
+                    ❤️ Top Songs{' '}
+                    {favoriteSongs.length > 0 ? 'You Love' : 'For You'}
                 </h2>
-                <p className='text-xs sm:text-sm text-gray-400 truncate'>
-                  {item.artist}
-                </p>
-                <div className='flex justify-between items-center mt-2 text-[11px] sm:text-xs text-gray-500'>
-                  <span>Track #{item.id + 1}</span>
-                  <span>
-                    {durations[item.id]
-                      ? formatDuration(durations[item.id])
-                      : '00:00'}
-                  </span>
-                </div>
-              </div>
 
-              {/* Bottom Glow Bar */}
-              <div className='absolute inset-x-0 bottom-0 h-[3px] bg-linear-to-r from-[#a855f7] to-[#c084fc] opacity-0 group-hover:opacity-100 transition-opacity duration-700'></div>
+                {/* Grid of Top Music Cards */}
+                <div className='pb-20 grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'>
+                    {topSongs.map((item, index) => (
+                        <MusicCard
+                            id={item.id}
+                            item={item}
+                            key={index}
+                            isfavorites={favoriteSongs.length >= 0}
+                        />
+                    ))}
+                </div>
             </div>
-          ))}
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Home;
