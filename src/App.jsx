@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import Explore from './pages/Explore';
-import Home from './pages/Home';
+import Home from './pages/home';
 import Play from './pages/play';
 import Nav from './components/nav/Nav';
+import Fav from './pages/favorite';
 export default function App() {
     return (
       <Router>
@@ -14,6 +15,7 @@ export default function App() {
                         <Route path='/' element={<Home />} />
                         <Route path='/explore' element={<Explore />} />
                         <Route path='/play/:id' element={<Play />} />
+                        <Route path='/favorite' element={<Fav />} />
                     </Routes>
                 </div>
             </div>
