@@ -11,7 +11,7 @@ function Explore() {
   const [durations, setDurations] = useState({});
   const Navigate = useNavigate();
 
-  // ⏳ Load duration for each music file automatically
+  //  Load duration for each music file automatically
   useEffect(() => {
     MusicData.forEach((track) => {
       const audio = new Audio(track.src);
