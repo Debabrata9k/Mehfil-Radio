@@ -86,24 +86,24 @@ const musicData = [
   },
   {
     id: 12,
-    title: 'miracle-11151',
-    artist: 'Mixkit',
-    cover: '/img/pexels-thepaintedsquare.jpg',
-    src: '/music/miracle-11151.mp3',
+    title: 'Afreen Afreen',
+    artist: 'Rahat Fateh Ali Khan',
+    cover: '/img/Afreen.jpg',
+    src: 'https://pagalnew.com/128-downloads/51655',
   },
   {
     id: 13,
-    title: 'product-presentation-advertisement-music-320720',
-    artist: 'Presentation advertis',
-    cover: '/img/pexels-xexusdesigner.jpg',
-    src: '/music/product-presentation-advertisement-music-320720.mp3',
+    title: 'Kaho Na Kaho',
+    artist: 'Amir Jawal',
+    cover: 'https://pagalnew.com/coverimages/dialogue-kaho-na-kaho-murder-500-500.jpg',
+    src: 'https://pagalnew.com/128-downloads/10407',
   },
   {
     id: 14,
     title: 'upbeat-motivational',
     artist: 'upbeat motivational',
     cover: '/img/pexels-pixabay.jpg',
-    src: '/music/upbeat-motivational-172092.mp3',
+    src: 'https://pagalnew.com/128-downloads/10408',
   },
 ];
 

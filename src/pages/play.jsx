@@ -206,7 +206,6 @@ function Play() {
                 src={currentMusicDetails.src}
                 onTimeUpdate={handleAudioUpdate}
                 onEnded={handleEnd}
-                crossOrigin='anonymous'
             />
 
             <div className='relative bg-zinc-600/5 backdrop-blur-lg w-80 rounded-3xl p-6 flex flex-col items-center shadow-[0_0_40px_8px_rgba(168,85,247,0.15)]'>
