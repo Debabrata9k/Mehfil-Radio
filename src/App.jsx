@@ -7,7 +7,7 @@ import Nav from './components/nav/Nav';
 import Fav from './pages/favorite';
 export default function App() {
     return (
-      <Router>
+        <Router>
             <div className='bg-black h-screen w-screen grid grid-rows-[70px_1fr] overflow-hidden'>
                 <Nav />
                 <div className=' w-full h-full'>
