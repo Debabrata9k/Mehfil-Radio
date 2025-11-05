@@ -10,6 +10,8 @@ import {
     Repeat,
     Shuffle,
     Heart,
+    Loader,
+    Loader2,
 } from 'lucide-react';
 
 function Play() {
@@ -19,7 +21,9 @@ function Play() {
 
     const [musicIndex, setMusicIndex] = useState(currentIndex);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [audioProgress, setAudioProgress] = useState(0);
+    const [bufferProgress, setBufferProgress] = useState(0);
     const [musicTotalLength, setMusicTotalLength] = useState('00:00');
     const [musicCurrentTime, setMusicCurrentTime] = useState('00:00');
     const [isRepeat, setIsRepeat] = useState(false);
@@ -42,7 +46,7 @@ function Play() {
 
     const isFavorite = favorites.includes(musicIndex);
 
-    // 🟣 Sync song when URL id changes (browser navigation)
+    // Sync when URL id changes
     useEffect(() => {
         const index = Number(id);
         if (index < 0 || index >= musicData.length) return;
@@ -54,77 +58,104 @@ function Play() {
             src: song.src,
             cover: song.cover,
         });
+        setBufferProgress(0);
     }, [id]);
 
-    // 🟣 Load audio and autoplay on song change
+    // Load and autoplay
     useEffect(() => {
         const audio = currentAudio.current;
         if (!audio) return;
 
+        setIsLoading(true);
         audio.pause();
         audio.src = currentMusicDetails.src;
         audio.load();
 
-        const onReady = () => {
+        const handleCanPlay = () => {
+            setIsLoading(false);
             audio
                 .play()
                 .then(() => setIsPlaying(true))
                 .catch(() => {});
         };
 
-        audio.addEventListener('loadedmetadata', onReady);
-        return () => audio.removeEventListener('loadedmetadata', onReady);
+        const handleProgress = () => {
+            if (audio.buffered.length > 0 && audio.duration > 0) {
+                const end = audio.buffered.end(audio.buffered.length - 1);
+                const percent = (end / audio.duration) * 100;
+                setBufferProgress(percent);
+            }
+        };
+
+        const handleTimeUpdate = () => {
+            if (audio.duration > 0) {
+                const format = (n) => (n < 10 ? `0${n}` : n);
+                const duration = audio.duration;
+                const current = audio.currentTime;
+                setMusicTotalLength(
+                    `${format(Math.floor(duration / 60))}:${format(
+                        Math.floor(duration % 60)
+                    )}`
+                );
+                setMusicCurrentTime(
+                    `${format(Math.floor(current / 60))}:${format(
+                        Math.floor(current % 60)
+                    )}`
+                );
+                setAudioProgress((current / duration) * 100);
+            }
+        };
+
+        const handleEnd = () => {
+            if (isRepeat) {
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                handleNextSong();
+            }
+        };
+
+        audio.addEventListener('canplay', handleCanPlay);
+        audio.addEventListener('progress', handleProgress);
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+        audio.addEventListener('ended', handleEnd);
+
+        return () => {
+            audio.removeEventListener('canplay', handleCanPlay);
+            audio.removeEventListener('progress', handleProgress);
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+            audio.removeEventListener('ended', handleEnd);
+        };
     }, [currentMusicDetails.src]);
 
-    // 🎚️ Time and progress updates
-    const handleAudioUpdate = () => {
-        const audio = currentAudio.current;
-        if (!audio || !audio.duration) return;
-
-        const format = (n) => (n < 10 ? `0${n}` : n);
-        const duration = audio.duration;
-        const current = audio.currentTime;
-
-        setMusicTotalLength(
-            `${format(Math.floor(duration / 60))}:${format(
-                Math.floor(duration % 60)
-            )}`
-        );
-        setMusicCurrentTime(
-            `${format(Math.floor(current / 60))}:${format(
-                Math.floor(current % 60)
-            )}`
-        );
-
-        const progress = (current / duration) * 100;
-        setAudioProgress(isNaN(progress) ? 0 : progress);
-    };
-
-    // ▶️ / ⏸️ Play Pause toggle
     const handleAudioPlay = () => {
         const audio = currentAudio.current;
         if (!audio) return;
 
-        if (audio.paused) {
-            audio.play();
-            setIsPlaying(true);
-        } else {
+        if (isPlaying) {
             audio.pause();
             setIsPlaying(false);
+        } else {
+            setIsLoading(true);
+            audio
+                .play()
+                .then(() => {
+                    setIsLoading(false);
+                    setIsPlaying(true);
+                })
+                .catch(() => setIsLoading(false));
         }
     };
 
-    // ⏩ Seek bar
     const handleMusicProgressBar = (e) => {
         const value = Number(e.target.value);
         const audio = currentAudio.current;
         if (!audio) return;
-        const seekTime = (value / 100) * audio.duration;
-        if (!isNaN(seekTime)) audio.currentTime = seekTime;
+        const seek = (value / 100) * audio.duration;
+        audio.currentTime = seek;
         setAudioProgress(value);
     };
 
-    // 🔀 Shuffle random
     const getRandomIndex = () => {
         let randomIndex = Math.floor(Math.random() * musicData.length);
         while (randomIndex === musicIndex && musicData.length > 1) {
@@ -133,33 +164,29 @@ function Play() {
         return randomIndex;
     };
 
-    // ⏭️ Next Song
     const handleNextSong = () => {
-        let nextIndex;
+        let next;
         if (isShuffle) {
-            nextIndex = getRandomIndex();
+            next = getRandomIndex();
             setPreviousIndex(musicIndex);
         } else {
-            nextIndex = (musicIndex + 1) % musicData.length;
+            next = (musicIndex + 1) % musicData.length;
         }
-        updateCurrentMusicDetails(nextIndex);
+        updateCurrentMusicDetails(next);
         setIsDisabled(false);
     };
 
-    // ⏮️ Previous Song
     const handlePrevSong = () => {
-        let prevIndex;
+        let prev;
         if (isShuffle && previousIndex != null) {
-            prevIndex = previousIndex;
+            prev = previousIndex;
             setIsDisabled(true);
         } else {
-            prevIndex =
-                musicIndex === 0 ? musicData.length - 1 : musicIndex - 1;
+            prev = musicIndex === 0 ? musicData.length - 1 : musicIndex - 1;
         }
-        updateCurrentMusicDetails(prevIndex);
+        updateCurrentMusicDetails(prev);
     };
 
-    // 🪄 Update state + URL
     const updateCurrentMusicDetails = (index) => {
         const song = musicData[index];
         setMusicIndex(index);
@@ -169,33 +196,20 @@ function Play() {
             src: song.src,
             cover: song.cover,
         });
-        setIsPlaying(true);
-
-        // Update the URL
         navigate(`/play/${index}`);
+        setIsPlaying(true);
+        setIsLoading(true);
     };
 
-    // 🔁 Auto-next or repeat
-    const handleEnd = () => {
-        const audio = currentAudio.current;
-        if (isRepeat) {
-            audio.currentTime = 0;
-            audio.play();
-        } else {
-            handleNextSong();
-        }
-    };
-
-    // 💜 Favorites
     const toggleFavorite = () => {
-        let updatedFavorites;
+        let updated;
         if (isFavorite) {
-            updatedFavorites = favorites.filter((f) => f !== musicIndex);
+            updated = favorites.filter((f) => f !== musicIndex);
         } else {
-            updatedFavorites = [...favorites, musicIndex];
+            updated = [...favorites, musicIndex];
         }
-        setFavorites(updatedFavorites);
-        localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+        setFavorites(updated);
+        localStorage.setItem('favorites', JSON.stringify(updated));
     };
 
     return (
@@ -203,9 +217,7 @@ function Play() {
             <audio
                 ref={currentAudio}
                 preload='metadata'
-                src={currentMusicDetails.src}
-                onTimeUpdate={handleAudioUpdate}
-                onEnded={handleEnd}
+                // crossOrigin='anonymous'
             />
 
             <div className='relative bg-zinc-600/5 backdrop-blur-lg w-80 rounded-3xl p-6 flex flex-col items-center shadow-[0_0_40px_8px_rgba(168,85,247,0.15)]'>
@@ -231,7 +243,6 @@ function Play() {
                     />
                 </div>
 
-                {/* Title + Artist */}
                 <MarqueeTitle title={currentMusicDetails.title} />
                 <p className='text-zinc-400 text-sm mb-5'>
                     {currentMusicDetails.artist}
@@ -261,18 +272,25 @@ function Play() {
                     </button>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Time + Buffered Bar */}
                 <div className='flex items-center justify-between text-xs w-full mb-2 text-zinc-400'>
                     <span>{musicCurrentTime}</span>
                     <span>{musicTotalLength}</span>
                 </div>
 
-                <input
-                    type='range'
-                    value={audioProgress}
-                    onChange={handleMusicProgressBar}
-                    className='w-full h-2 accent-purple-600 rounded-lg cursor-pointer'
-                />
+                {/* PG Bar */}
+                <div className='relative w-full h-2 mb-3'>
+                    <div
+                        className='absolute z-10 pointer-events-none top-0 left-0 h-2 opacity-50 bg-purple-500 rounded-lg transition-all duration-300'
+                        style={{ width: `${bufferProgress}%` }}
+                    ></div>
+                    <input
+                        type='range'
+                        value={audioProgress}
+                        onChange={handleMusicProgressBar}
+                        className='absolute w-full h-2 accent-purple-600 rounded-lg cursor-pointer'
+                    />
+                </div>
 
                 {/* Controls */}
                 <div className='flex justify-center items-center gap-6 mt-6'>
@@ -288,9 +306,11 @@ function Play() {
 
                     <button
                         onClick={handleAudioPlay}
-                        className='p-4 rounded-full bg-purple-500 hover:bg-purple-400 text-white shadow-lg hover:shadow-[0_0_20px_4px_rgba(168,85,247,0.6)] transition-all'
+                        className='p-4 rounded-full bg-purple-500 hover:bg-purple-400 text-white shadow-lg hover:shadow-[0_0_20px_4px_rgba(168,85,247,0.6)] transition-all '
                     >
-                        {isPlaying ? (
+                        {isLoading ? (
+                            <Loader2 className='animate-spin' />
+                        ) : isPlaying ? (
                             <Pause size={26} />
                         ) : (
                             <PlayIcon size={26} />
